@@ -186,8 +186,10 @@
   const map = L.map('map', {zoomControl:false, attributionControl:true, preferCanvas:true}).setView(center, 12);
   L.control.zoom({position:'topleft'}).addTo(map);
 
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    maxZoom: 19, attribution:'© OpenStreetMap © CARTO'
+  const CARTO_BASEMAPS_API_KEY='__CARTO_BASEMAPS_API_KEY__';
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png?key='+encodeURIComponent(CARTO_BASEMAPS_API_KEY), {
+    maxZoom: 19,
+    attribution:'© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, © <a href="https://carto.com/attribution/" target="_blank" rel="noopener">CARTO</a>'
   }).addTo(map);
 
   /* ---------- helpers ---------- */
@@ -458,6 +460,14 @@
     let result=null; nodes.forEach(node=>{const d=haversine(point,node);if(!result||d<result.d)result={node,d};}); return result;
   }
 
+  const NOMINATIM_MIN_INTERVAL_MS=1000;
+  let lastNominatimRequestAt=0;
+  async function waitForNominatimSlot(){
+    const wait=Math.max(0,NOMINATIM_MIN_INTERVAL_MS-(Date.now()-lastNominatimRequestAt));
+    if(wait) await new Promise(resolve=>setTimeout(resolve,wait));
+    lastNominatimRequestAt=Date.now();
+  }
+
   async function geocode(query){
     // Nominatim nie zawsze interpretuje polski skrót "ul." jako typ ulicy.
     // Wysyłamy najpierw nazwę bez skrótu, a potem oryginalne zapytanie jako fallback.
@@ -482,7 +492,10 @@
       const controller=new AbortController();
       const timeout=setTimeout(()=>controller.abort(),10000);
       let res;
-      try{ res=await fetch(url,{headers:{'Accept':'application/json'},signal:controller.signal}); }
+      try{
+        await waitForNominatimSlot();
+        res=await fetch(url,{headers:{'Accept':'application/json'},signal:controller.signal});
+      }
       catch(error){ if(error.name==='AbortError') throw new Error('Wyszukiwanie trwało zbyt długo'); throw error; }
       finally{ clearTimeout(timeout); }
       if(!res.ok) throw new Error('HTTP '+res.status);

@@ -95,7 +95,15 @@ Warstwa **PKP · Łomża → Warszawa** pokazuje schematyczne połączenie przez
 
 ## Licencje i atrybucja
 
-Przed publicznym wdrożeniem sprawdź warunki korzystania z kafelków Carto, usługi Nominatim oraz licencję danych OpenStreetMap (ODbL). Zachowaj widoczną atrybucję mapy i danych.
+Mapa wyświetla wymaganą, widoczną atrybucję: [© OpenStreetMap contributors](https://www.openstreetmap.org/copyright), [© CARTO](https://carto.com/attribution/). Atrybucja jest ustawiona w kontrolce Leaflet i musi pozostać widoczna także na eksportach mapy.
+
+Przed publicznym wdrożeniem należy zaakceptować aktualne [warunki CARTO Basemaps](https://www.carto.com/legal/basemap-terms/). Klucz CARTO jest używany po stronie przeglądarki, dlatego należy ograniczyć go w panelu CARTO do domen wdrożeniowych i monitorować limity; po ujawnieniu klucza poza zespołem należy go wygenerować ponownie. Nominatim jest używany wyłącznie do ręcznego wyszukiwania adresu, z odstępem co najmniej 1 sekundy między żądaniami. Publiczna usługa nie może być używana do autouzupełniania, masowych zapytań ani przy większym ruchu; wtedy należy użyć własnej instancji lub dostawcy komercyjnego. Obowiązuje [Nominatim Usage Policy](https://operations.osmfoundation.org/policies/nominatim/).
+
+### GitHub Pages
+
+Klucz nie jest przechowywany w repozytorium. W ustawieniach repozytorium dodaj sekret `CARTO_BASEMAPS_API_KEY`, a następnie włącz GitHub Pages jako źródło **GitHub Actions**. Workflow `.github/workflows/deploy-pages.yml` wstawi klucz wyłącznie do artefaktu wdrożeniowego. W panelu CARTO ogranicz klucz do adresu `login.github.io` lub własnej domeny.
+
+Dane OpenStreetMap są udostępniane na licencji [ODbL](https://opendatacommons.org/licenses/odbl/1-0/). Przy dystrybucji danych pochodnych należy zachować informacje licencyjne i spełnić wymagania share-alike; dane użyte w aplikacji powinny być odróżnione od własnych danych koncepcyjnych.
 
 ## Walidacja danych
 
